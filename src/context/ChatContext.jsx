@@ -2,7 +2,6 @@ import { createContext, useContext, useState, useRef, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import { useCalendar, formatDate, formatTime12h, formatDuration, getDateString, parseLocalDate, parseTaskDueDate, isSameDay, isRecurringEvent, getEventDate, isHolidayEvent, isCanvasEvent, eventIsOnDate } from './CalendarContext'
 import { useTasks, parseTaskNotes, getTaskUrgencyColor, buildTaskNotes, taskIsOnDate } from './TaskContext'
-import { useWeather } from './WeatherContext'
 import { useSettings } from './SettingsContext'
 
 const ChatContext = createContext()
@@ -33,7 +32,6 @@ export function ChatProvider({ children }) {
     deleteGoogleTask, bulkDeleteTasks, deleteDuplicateTasks,
     findTaskByFuzzyMatch, queryTasks
   } = useTasks()
-  const { weather, userLocation, fetchWeatherForLocation } = useWeather()
   const { getApiKey, behavioralRules, addBehavioralRule } = useSettings()
 
   const [chatMessages, setChatMessages] = useState([])
@@ -79,11 +77,10 @@ export function ChatProvider({ children }) {
 
     const lastCtx = lastMentioned ? `\nLast mentioned: ${lastMentioned.type} "${lastMentioned.name}"${lastMentioned.date ? ` on ${lastMentioned.date}` : ''}` : ''
 
-    return `You are Nova, a personal secretary. You manage calendar events, tasks, weather, and behavioral rules. Be concise and friendly.
+    return `You are Nova, a personal secretary. You manage calendar events, tasks, and behavioral rules. Be concise and friendly.
 ${dateMapping}
 DATES: Use EXACT dates from the table above. Never calculate dates yourself.
 Today: ${formatDate(today)} (${todayStr}). Time: ${today.toLocaleTimeString()}.${holidayNote}${taskList}${rulesSection}${lastCtx}
-Location: ${userLocation}. Weather: ${weather ? `${Math.round(weather.main.temp)}°F, ${weather.weather[0].description}` : 'unavailable'}
 
 RULES:
 1. ALWAYS respond with valid JSON only (no markdown, no backticks, no explanation text).
@@ -137,7 +134,6 @@ Ask duration: {"action":"ask_duration","eventDetails":{...},"response":"...","ex
 Ask event name: {"action":"ask_event_name","partialDetails":{...},"response":"...","expectsResponse":true}
 
 === OTHER ===
-Weather: {"action":"get_weather","location":"city or current","response":"..."}
 Add rule: {"action":"add_rule","rule":"...","response":"..."}
 Out of scope: {"action":"out_of_scope","response":"..."}
 
@@ -485,13 +481,6 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
       if (parsed.action === 'ask_missing_info') { setPendingAction({ type: 'missing_info', eventDetails: parsed.eventDetails, missing: parsed.missing }); return { success: true, message: parsed.response, expectsResponse: true } }
       if (parsed.action === 'ask_event_name') { setPendingAction({ type: 'event_name', partialDetails: parsed.partialDetails || {} }); return { success: true, message: parsed.response, expectsResponse: true } }
       if (parsed.action === 'ask_duration') { setPendingAction({ type: 'duration', details: { ...parsed.eventDetails } }); return { success: true, message: parsed.response, expectsResponse: true } }
-
-      if (parsed.action === 'get_weather') {
-        const loc = parsed.location === 'current' ? userLocation : parsed.location
-        const r = await fetchWeatherForLocation(loc)
-        if (r.success) return { success: true, message: `Weather in ${r.weather.name}: ${Math.round(r.weather.main.temp)}°F, ${r.weather.weather[0].description}. High ${Math.round(r.weather.main.temp_max)}°, low ${Math.round(r.weather.main.temp_min)}°.`, expectsResponse: false }
-        return { success: false, message: 'Could not get weather for that location.', expectsResponse: false }
-      }
 
       if (parsed.action === 'add_rule') { addBehavioralRule(parsed.rule); return { success: true, message: parsed.response, expectsResponse: false } }
       if (parsed.action === 'ask_task_type') { setPendingAction({ type: 'task_type', details: { title: parsed.title, description: parsed.description || '' } }); return { success: true, message: parsed.response || 'Is this a general task or does it have a due date?', expectsResponse: true } }

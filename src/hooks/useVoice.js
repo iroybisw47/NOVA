@@ -2,7 +2,6 @@ import { useState, useRef } from 'react'
 import { useChat } from '../context/ChatContext'
 import { useCalendar, formatDate, eventIsOnDate, isHolidayEvent, isCanvasAllDayEvent } from '../context/CalendarContext'
 import { useTasks, taskIsOnDate } from '../context/TaskContext'
-import { useWeather } from '../context/WeatherContext'
 
 export function useVoice() {
   const [isSpeaking, setIsSpeaking] = useState(false)
@@ -14,7 +13,6 @@ export function useVoice() {
   const { processCommand, setStatusMessage } = useChat()
   const { calendarEvents, allEvents, getHolidaysForDate } = useCalendar()
   const { googleTasks } = useTasks()
-  const { weather } = useWeather()
 
   const recognitionRef = useRef(null)
 
@@ -71,7 +69,6 @@ export function useVoice() {
     }
     const pendingTasks = googleTasks.filter(t => t.status !== 'completed')
     if (pendingTasks.length) briefing += `${pendingTasks.length} task${pendingTasks.length > 1 ? 's' : ''} pending. `
-    if (weather?.main) briefing += `Weather in ${weather.name} is ${Math.round(weather.main.temp)} degrees with ${weather.weather[0].description}.`
 
     setIsSpeaking(true)
     setLastNovaMessage(briefing)

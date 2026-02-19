@@ -1,7 +1,6 @@
 import { useCalendar, eventIsOnDate, isHolidayEvent, isCanvasAllDayEvent } from '../../context/CalendarContext'
 import { useTasks } from '../../context/TaskContext'
 import StatCard from './StatCard'
-import WeatherCard from './WeatherCard'
 import TodayEvents from './TodayEvents'
 import ChatPanel from '../chat/ChatPanel'
 import './DashboardView.css'
@@ -33,7 +32,6 @@ export default function DashboardView() {
         <TodayEvents />
       </div>
 
-      <WeatherCard />
     </div>
   )
 }

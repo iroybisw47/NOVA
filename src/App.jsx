@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { WeatherProvider } from './context/WeatherContext'
 import { SettingsProvider } from './context/SettingsContext'
 import { CalendarProvider, useCalendar } from './context/CalendarContext'
 import { TaskProvider, useTasks } from './context/TaskContext'
@@ -91,8 +90,7 @@ export default function App() {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <ThemeProvider>
         <AuthProvider>
-          <WeatherProvider>
-            <SettingsProvider>
+          <SettingsProvider>
               <CalendarProvider>
                 <TaskProvider>
                   <WorkSessionProvider>
@@ -105,7 +103,6 @@ export default function App() {
                 </TaskProvider>
               </CalendarProvider>
             </SettingsProvider>
-          </WeatherProvider>
         </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
