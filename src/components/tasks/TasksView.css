@@ -1,0 +1,18 @@
+.tasks-view {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.tasks-view__title {
+  margin: 0 0 var(--space-xl) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.tasks-view__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--space-3xl);
+}

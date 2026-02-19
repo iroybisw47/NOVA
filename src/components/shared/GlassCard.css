@@ -1,0 +1,27 @@
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  padding: var(--space-lg);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  will-change: transform;
+}
+
+.glass-card--heavy {
+  background: var(--glass-bg-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: var(--glass-blur-heavy);
+}
+
+.glass-card--light {
+  background: var(--glass-bg-light);
+  padding: var(--space-md);
+}
+
+.glass-card--hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-hover), var(--glass-inset);
+}

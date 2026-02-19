@@ -1,0 +1,48 @@
+.settings-view {
+  max-width: 700px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.settings-view__title {
+  margin: 0 0 var(--space-xl) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.settings-view__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--glass-inset);
+}
+
+.settings-view__tab {
+  flex: 1;
+  padding: var(--space-md);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all var(--transition-fast);
+}
+
+.settings-view__tab--active {
+  background: var(--glass-bg-heavy);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-view__tab:hover:not(.settings-view__tab--active) {
+  color: var(--color-text);
+}

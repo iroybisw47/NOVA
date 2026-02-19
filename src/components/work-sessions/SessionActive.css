@@ -1,0 +1,209 @@
+.session-active {
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.session-active__timer-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  background: var(--glass-bg-heavy);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-lg);
+  transition: all var(--transition-base);
+}
+
+.session-active__timer-area--break {
+  border-color: var(--color-success);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.session-active__badge {
+  padding: 4px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-active__badge--running {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.session-active__badge--paused {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.session-active__badge--break {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.session-active__ring-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.session-active__ring {
+  display: block;
+}
+
+.session-active__ring-bg {
+  fill: none;
+  stroke: var(--glass-border);
+}
+
+.session-active__ring-progress {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.session-active__timer-area--break .session-active__ring-progress {
+  stroke: var(--color-success);
+}
+
+.session-active__ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.session-active__countdown {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.session-active__countdown-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.session-active__break-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--glass-border);
+  overflow: hidden;
+}
+
+.session-active__break-fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.session-active__controls {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.session-active__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-active__btn--secondary {
+  background: var(--glass-bg);
+  color: var(--color-text);
+  border: 1px solid var(--glass-border);
+}
+
+.session-active__btn--secondary:hover {
+  background: var(--glass-bg-heavy);
+}
+
+.session-active__btn--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.session-active__btn--danger:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.session-active__stats {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.session-active__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-md);
+  background: var(--glass-bg-heavy);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+.session-active__stat-label {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.session-active__stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.session-active__tasks {
+  background: var(--glass-bg-heavy);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.session-active__tasks-title {
+  margin: 0 0 var(--space-md) 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.session-active__tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

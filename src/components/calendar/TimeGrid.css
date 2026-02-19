@@ -1,0 +1,109 @@
+.time-grid {
+  background: var(--glass-bg-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  backdrop-filter: var(--glass-blur-heavy);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg), var(--glass-inset);
+}
+
+.time-grid__headers {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.time-grid__corner {
+  padding: var(--space-md) var(--space-sm);
+  background: var(--glass-bg-light);
+}
+
+.time-grid__day-header {
+  padding: var(--space-lg) var(--space-sm);
+  text-align: center;
+  border-left: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.time-grid__day-header--weekend {
+  background: var(--glass-bg-light);
+}
+
+.time-grid__day-header--selected {
+  background: var(--sidebar-active-bg);
+}
+
+.time-grid__day-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-grid__day-name--today {
+  color: var(--color-primary);
+}
+
+.time-grid__day-number {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-top: 4px;
+}
+
+.time-grid__day-number--today {
+  font-weight: 700;
+  color: var(--color-primary);
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  background: var(--sidebar-active-bg);
+  border-radius: 50%;
+  margin: 4px auto 0;
+}
+
+.time-grid__body {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.time-grid__labels {
+  background: var(--glass-bg-light);
+}
+
+.time-grid__label {
+  height: 60px;
+  padding: 4px 8px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-align: right;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.time-grid__column {
+  position: relative;
+  border-left: 1px solid var(--glass-border);
+}
+
+.time-grid__column--weekend {
+  background: var(--glass-bg-light);
+}
+
+.time-grid__hour-cell {
+  height: 60px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.time-grid__allday-container {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  right: 2px;
+  z-index: 5;
+}

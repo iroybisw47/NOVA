@@ -1,0 +1,86 @@
+.account-settings {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm), var(--glass-inset);
+}
+
+.account-settings__title {
+  margin: 0 0 var(--space-lg) 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.account-settings__desc {
+  margin: 0 0 var(--space-lg) 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.account-settings__desc a {
+  color: var(--color-primary);
+}
+
+.account-settings__input-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.account-settings__input {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-family: monospace;
+  color: var(--color-text);
+  background: var(--glass-bg-light);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.account-settings__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.account-settings__toggle {
+  padding: var(--space-md);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.account-settings__toggle:hover {
+  background: var(--glass-bg);
+}
+
+.account-settings__save {
+  margin-top: var(--space-lg);
+  padding: var(--space-md) var(--space-xl);
+  background: var(--color-primary-gradient);
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.account-settings__save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+}
+
+.account-settings__status {
+  margin-top: var(--space-md);
+  color: var(--color-success);
+  font-size: 0.875rem;
+}

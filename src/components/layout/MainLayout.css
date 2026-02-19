@@ -1,0 +1,56 @@
+.main-layout {
+  display: flex;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-layout__blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.main-layout__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform;
+}
+
+.main-layout__blob--1 {
+  width: 500px;
+  height: 500px;
+  background: var(--blob-1);
+  top: -10%;
+  right: -5%;
+  animation: blobFloat 20s ease-in-out infinite;
+}
+
+.main-layout__blob--2 {
+  width: 400px;
+  height: 400px;
+  background: var(--blob-2);
+  bottom: -10%;
+  left: -5%;
+  animation: blobFloat2 25s ease-in-out infinite;
+}
+
+.main-layout__blob--3 {
+  width: 350px;
+  height: 350px;
+  background: var(--blob-3);
+  top: 40%;
+  left: 50%;
+  animation: blobFloat 30s ease-in-out infinite reverse;
+}
+
+.main-layout__content {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: var(--z-base);
+}

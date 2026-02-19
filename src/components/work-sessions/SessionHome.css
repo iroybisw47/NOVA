@@ -1,0 +1,116 @@
+.session-home {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.session-home__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.session-home__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.session-home__start-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-gradient);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-home__start-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.session-home__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl);
+  color: var(--color-text-secondary);
+}
+
+.session-home__empty p {
+  margin: 0;
+}
+
+.session-home__empty-sub {
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+}
+
+.session-home__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.session-home__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-heavy);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+
+.session-home__card:hover {
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.session-home__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.session-home__card-date {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.session-home__card-time {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+}
+
+.session-home__card-stats {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.session-home__card-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
