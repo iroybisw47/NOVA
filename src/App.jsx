@@ -14,6 +14,7 @@ import MainLayout from './components/layout/MainLayout'
 import Sidebar from './components/layout/Sidebar'
 import Header from './components/layout/Header'
 import LoadingSpinner from './components/shared/LoadingSpinner'
+import LoginScreen from './components/auth/LoginScreen'
 import DashboardView from './components/dashboard/DashboardView'
 import CalendarView from './components/calendar/CalendarView'
 import TasksView from './components/tasks/TasksView'
@@ -22,7 +23,7 @@ import SettingsView from './components/settings/SettingsView'
 import WorkSessionsView from './components/work-sessions/WorkSessionsView'
 
 function NovaApp() {
-  const { accessToken, isLoading, setLoading, needsInit, setNeedsInit } = useAuth()
+  const { accessToken, isSignedIn, isLoading, setLoading, needsInit, setNeedsInit } = useAuth()
   const { initialize: initCalendar, loadEvents } = useCalendar()
   const { initialize: initTasks } = useTasks()
   const { getGreeting } = useVoice()
@@ -45,6 +46,14 @@ function NovaApp() {
     }
     init()
   }, [accessToken, needsInit])
+
+  if (!isSignedIn) {
+    return (
+      <MainLayout>
+        <LoginScreen />
+      </MainLayout>
+    )
+  }
 
   if (isLoading) {
     return (
