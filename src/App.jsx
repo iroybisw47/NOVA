@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Component } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -20,6 +20,34 @@ import TasksView from './components/tasks/TasksView'
 import JournalView from './components/journal/JournalView'
 import SettingsView from './components/settings/SettingsView'
 import WorkSessionsView from './components/work-sessions/WorkSessionsView'
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f172a', color: '#e2e8f0', fontFamily: 'system-ui', padding: '2rem' }}>
+          <div style={{ maxWidth: 500, textAlign: 'center' }}>
+            <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Nova failed to load</h1>
+            <pre style={{ background: '#1e293b', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'left', overflowX: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              {this.state.error?.message || 'Unknown error'}
+            </pre>
+            <button onClick={() => window.location.reload()} style={{ marginTop: '1rem', padding: '0.5rem 1.5rem', background: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem' }}>
+              Reload
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function NovaApp() {
   const { accessToken, isSignedIn, isLoading, setLoading, needsInit, setNeedsInit } = useAuth()
@@ -86,11 +114,24 @@ function NovaApp() {
 }
 
 export default function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+  if (!clientId) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f172a', color: '#e2e8f0', fontFamily: 'system-ui', padding: '2rem' }}>
+        <div style={{ maxWidth: 500, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Missing Configuration</h1>
+          <p>VITE_GOOGLE_CLIENT_ID environment variable is not set. Add it in your Vercel project settings.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <ThemeProvider>
-        <AuthProvider>
-          <SettingsProvider>
+    <ErrorBoundary>
+      <GoogleOAuthProvider clientId={clientId}>
+        <ThemeProvider>
+          <AuthProvider>
+            <SettingsProvider>
               <CalendarProvider>
                 <TaskProvider>
                   <WorkSessionProvider>
@@ -103,8 +144,9 @@ export default function App() {
                 </TaskProvider>
               </CalendarProvider>
             </SettingsProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </GoogleOAuthProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </GoogleOAuthProvider>
+    </ErrorBoundary>
   )
 }
