@@ -7,7 +7,9 @@
       "Bash(del \"C:\\\\Users\\\\iroyb\\\\secretary-app\\\\src\\\\index.css\")",
       "Bash(del \"C:\\\\Users\\\\iroyb\\\\secretary-app\\\\src\\\\jarvis.jsx\")",
       "Bash(git init:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
