@@ -150,6 +150,42 @@
   box-shadow: 0 0 0 2px var(--glass-bg-heavy);
 }
 
+.day-detail__event--deleting {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.day-detail__editable {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.day-detail__editable:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.day-detail__edit-input {
+  width: 100%;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--glass-bg);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  outline: none;
+  margin-bottom: 6px;
+}
+
+.day-detail__edit-input--small {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  width: auto;
+  flex: 1;
+  margin-bottom: 0;
+}
+
 .day-detail__empty {
   text-align: center;
   padding: var(--space-2xl) var(--space-lg);

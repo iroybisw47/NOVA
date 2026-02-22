@@ -55,6 +55,16 @@
   color: var(--color-text-secondary);
 }
 
+.session-detail__description {
+  margin: 0 0 var(--space-lg) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--glass-bg-light);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-primary);
+}
+
 .session-detail__stats {
   display: flex;
   gap: var(--space-md);

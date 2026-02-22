@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useAuth } from './AuthContext'
 
 const WorkSessionContext = createContext()
 
@@ -13,6 +13,7 @@ function createEmptySession() {
   return {
     id: String(Date.now()),
     status: 'idle',
+    description: '',
     tasks: [],
     timerConfig: { ...DEFAULT_CONFIG },
     startedAt: null,
@@ -125,12 +126,37 @@ export function formatMsLong(ms) {
 // --- Provider ---
 
 export function WorkSessionProvider({ children }) {
-  const [sessions, setSessions] = useLocalStorage('nova_work_sessions', [])
-  const [sessionDefaults, setSessionDefaults] = useLocalStorage('nova_session_defaults', DEFAULT_CONFIG)
+  const { userId } = useAuth()
+  const [sessions, setSessions] = useState([])
+  const [sessionDefaults, setSessionDefaults] = useState(DEFAULT_CONFIG)
   const [activeSession, setActiveSession] = useState(null)
 
   const timerRef = useRef(null)
   const lastTickRef = useRef(null)
+
+  // Load from localStorage keyed by userId
+  useEffect(() => {
+    if (userId) {
+      try {
+        const saved = localStorage.getItem(`nova_work_sessions_${userId}`)
+        setSessions(saved ? JSON.parse(saved) : [])
+      } catch { setSessions([]) }
+      try {
+        const saved = localStorage.getItem(`nova_session_defaults_${userId}`)
+        if (saved) setSessionDefaults(JSON.parse(saved))
+      } catch {}
+    }
+  }, [userId])
+
+  // Persist sessions
+  useEffect(() => {
+    if (userId) localStorage.setItem(`nova_work_sessions_${userId}`, JSON.stringify(sessions))
+  }, [sessions, userId])
+
+  // Persist defaults
+  useEffect(() => {
+    if (userId) localStorage.setItem(`nova_session_defaults_${userId}`, JSON.stringify(sessionDefaults))
+  }, [sessionDefaults, userId])
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -217,6 +243,10 @@ export function WorkSessionProvider({ children }) {
     setSessionDefaults(config)
   }, [setSessionDefaults])
 
+  const updateDescription = useCallback((description) => {
+    setActiveSession(prev => prev ? { ...prev, description } : prev)
+  }, [])
+
   const addSessionTask = useCallback((title, source = 'session', googleTaskId = null) => {
     setActiveSession(prev => {
       if (!prev) return prev
@@ -283,6 +313,7 @@ export function WorkSessionProvider({ children }) {
     if (!activeSession) return
     const log = {
       id: activeSession.id,
+      description: activeSession.description || '',
       date: activeSession.startedAt ? new Date(activeSession.startedAt).toLocaleDateString() : new Date().toLocaleDateString(),
       startTime: activeSession.startedAt || new Date().toISOString(),
       endTime: new Date().toISOString(),
@@ -312,6 +343,7 @@ export function WorkSessionProvider({ children }) {
     startNewSession,
     updateTimerConfig,
     saveDefaults,
+    updateDescription,
     addSessionTask,
     removeSessionTask,
     toggleSessionTaskStatus,

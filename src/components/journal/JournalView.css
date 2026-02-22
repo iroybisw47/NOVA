@@ -4,34 +4,11 @@
   animation: fadeIn 0.3s ease;
 }
 
-.journal-view__nav {
+.journal-view__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-xl);
-}
-
-.journal-view__nav-btn {
-  padding: var(--space-sm) var(--space-lg);
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  transition: all var(--transition-fast);
-  box-shadow: var(--glass-inset);
-}
-
-.journal-view__nav-btn:hover {
-  background: var(--glass-bg-heavy);
-  color: var(--color-text);
-}
-
-.journal-view__nav-center {
-  text-align: center;
 }
 
 .journal-view__title {
@@ -41,25 +18,139 @@
   color: var(--color-text);
 }
 
-.journal-view__date {
-  margin: 4px 0 0 0;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.journal-view__today-btn {
-  margin-top: var(--space-sm);
-  padding: 4px var(--space-md);
+.journal-view__new-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
   border: none;
-  background: var(--sidebar-active-bg);
-  border-radius: var(--radius-sm);
-  color: var(--color-primary);
-  font-size: 0.75rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-gradient);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.journal-view__today-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
+.journal-view__new-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.journal-view__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-2xl);
+  color: var(--color-text-secondary);
+}
+
+.journal-view__empty p {
+  margin: 0;
+}
+
+.journal-view__empty-sub {
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+}
+
+.journal-view__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.journal-view__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-heavy);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+}
+
+.journal-view__card:hover {
+  box-shadow: var(--glass-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.journal-view__card--expanded {
+  border-color: var(--color-primary);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.journal-view__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.journal-view__card-date {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.journal-view__card-count {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.journal-view__card-preview {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journal-view__expanded {
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: var(--glass-bg-light);
+  margin-bottom: var(--space-sm);
+}
+
+.journal-view__expanded-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.journal-view__expanded-date {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.journal-view__collapse-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.journal-view__collapse-btn:hover {
+  color: var(--color-text);
+  background: var(--glass-bg);
 }

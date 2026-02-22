@@ -43,6 +43,9 @@ export default function SessionHome({ onStartNew, onViewDetail }) {
                     {startDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
                   </span>
                 </div>
+                {session.description && (
+                  <p className="session-home__card-desc">{session.description}</p>
+                )}
                 <div className="session-home__card-stats">
                   <span className="session-home__card-stat">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

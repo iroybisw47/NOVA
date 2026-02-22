@@ -21,9 +21,13 @@
 .task-item__checkbox {
   width: 20px;
   height: 20px;
+  min-width: 20px;
   cursor: pointer;
   margin-top: 2px;
   accent-color: var(--color-primary);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
 .task-item__content {
@@ -77,6 +81,53 @@
 .task-item__delete:hover {
   color: var(--color-danger);
   background: var(--color-danger-bg);
+}
+
+.task-item__editable {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.task-item__editable:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.task-item__edit-input {
+  width: 100%;
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--glass-bg);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  outline: none;
+  margin: 0;
+}
+
+.task-item__edit-textarea {
+  width: 100%;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  background: var(--glass-bg);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  outline: none;
+  margin-top: 6px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.task-item__add-desc {
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.task-item:hover .task-item__add-desc {
+  opacity: 0.5;
 }
 
 [data-theme="dark"] .task-item__title {

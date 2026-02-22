@@ -7,8 +7,8 @@ const TaskContext = createContext()
 export const parseTaskNotes = (notes) => {
   if (!notes) return { type: 'due', priority: 'medium', description: '' }
   const typeMatch = notes.match(/\[TYPE:(general|due)\]/)
-  const priorityMatch = notes.match(/\[PRIORITY:(high|medium|low)\]/)
-  let description = notes.replace(/\[TYPE:(general|due)\]/, '').replace(/\[PRIORITY:(high|medium|low)\]/, '').replace(/\[TIME:[^\]]+\]/, '').trim()
+  const priorityMatch = notes.match(/\[PRIORITY:(urgent|high|medium|low)\]/)
+  let description = notes.replace(/\[TYPE:(general|due)\]/, '').replace(/\[PRIORITY:(urgent|high|medium|low)\]/, '').replace(/\[TIME:[^\]]+\]/, '').trim()
   return { type: typeMatch ? typeMatch[1] : 'due', priority: priorityMatch ? priorityMatch[1] : 'medium', description }
 }
 
@@ -22,7 +22,8 @@ export const buildTaskNotes = (type, priority, time, description) => {
 }
 
 export const getTaskUrgencyColor = (task) => {
-  const { type } = parseTaskNotes(task.notes)
+  const { type, priority } = parseTaskNotes(task.notes)
+  if (priority === 'urgent') return { bg: '#fdf2f8', border: '#9333ea', text: '#7c3aed', label: 'Urgent', isUrgent: true }
   if (type === 'general') return { bg: '#f0fdf4', border: '#22c55e', text: '#16a34a', label: 'General' }
   if (!task.due) return { bg: '#f0fdf4', border: '#22c55e', text: '#16a34a', label: 'No due date' }
   const now = new Date()
@@ -40,7 +41,8 @@ export const getTaskUrgencyColor = (task) => {
 
 export const categorizeTask = (task) => {
   if (task.status === 'completed') return 'completed'
-  const { type } = parseTaskNotes(task.notes)
+  const { type, priority } = parseTaskNotes(task.notes)
+  if (priority === 'urgent') return 'urgent'
   if (type === 'general') return 'general'
   if (task.due) {
     const now = new Date()
@@ -56,6 +58,7 @@ export const categorizeTask = (task) => {
 
 export const getPriorityColor = (priority) => {
   switch (priority) {
+    case 'urgent': return { bg: '#fdf2f8', border: '#9333ea', text: '#7c3aed' }
     case 'high': return { bg: '#fef2f2', border: '#ef4444', text: '#dc2626' }
     case 'medium': return { bg: '#fffbeb', border: '#f59e0b', text: '#d97706' }
     case 'low': return { bg: '#f0fdf4', border: '#22c55e', text: '#16a34a' }
@@ -95,9 +98,9 @@ export function TaskProvider({ children }) {
     if (token && taskListId) setGoogleTasks(await fetchGoogleTasks(token, taskListId))
   }
 
-  const addGoogleTask = async (title, dueDate = null, type = 'due', description = '') => {
+  const addGoogleTask = async (title, dueDate = null, type = 'due', description = '', priority = null) => {
     if (!taskListId || !accessToken) return { success: false }
-    const body = { title, status: 'needsAction', notes: buildTaskNotes(type, null, null, description) }
+    const body = { title, status: 'needsAction', notes: buildTaskNotes(type, priority, null, description) }
     if (type === 'due' && dueDate) body.due = toTaskDueDate(dueDate)
     else if (type === 'due' && !dueDate) body.due = toTaskDueDate(getDateString(new Date()))
     try {

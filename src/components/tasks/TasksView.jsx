@@ -7,11 +7,14 @@ import './TasksView.css'
 export default function TasksView() {
   const { googleTasks, showCompletedTasks, setShowCompletedTasks, bulkDeleteTasks } = useTasks()
 
-  const generalTasks = googleTasks.filter(t => t.status !== 'completed' && parseTaskNotes(t.notes).type === 'general')
+  const urgentTasks = googleTasks.filter(t => t.status !== 'completed' && parseTaskNotes(t.notes).priority === 'urgent')
+
+  const generalTasks = googleTasks.filter(t => t.status !== 'completed' && parseTaskNotes(t.notes).type === 'general' && parseTaskNotes(t.notes).priority !== 'urgent')
 
   const dueTasks = googleTasks.filter(t => {
     if (t.status === 'completed') return false
-    const { type } = parseTaskNotes(t.notes)
+    const { type, priority } = parseTaskNotes(t.notes)
+    if (priority === 'urgent') return false
     if (type === 'general') return false
     if (!t.due) return true
     const dueDate = parseTaskDueDate(t.due)
@@ -32,7 +35,8 @@ export default function TasksView() {
 
   const overdueTasks = googleTasks.filter(t => {
     if (t.status === 'completed') return false
-    const { type } = parseTaskNotes(t.notes)
+    const { type, priority } = parseTaskNotes(t.notes)
+    if (priority === 'urgent') return false
     if (type === 'general' || !t.due) return false
     const dueDate = parseTaskDueDate(t.due)
     if (!dueDate) return false
@@ -43,12 +47,13 @@ export default function TasksView() {
   })
 
   const completedTasks = googleTasks.filter(t => t.status === 'completed')
-  const hasNoTasks = !generalTasks.length && !dueTasks.length && !overdueTasks.length
+  const hasNoTasks = !urgentTasks.length && !generalTasks.length && !dueTasks.length && !overdueTasks.length
 
   return (
     <div className="tasks-view">
       <h2 className="tasks-view__title">Tasks</h2>
 
+      <TaskGroup title="Urgent" icon="🟣" titleColor="#7c3aed" tasks={urgentTasks} />
       <TaskGroup title="Overdue" icon="🔴" titleColor="#dc2626" tasks={overdueTasks} />
       <TaskGroup title="Due Tasks" icon="📅" titleColor="var(--color-text)" tasks={dueTasks} />
       <TaskGroup title="General Tasks" icon="🟢" titleColor="#16a34a" tasks={generalTasks} />

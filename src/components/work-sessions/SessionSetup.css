@@ -329,6 +329,24 @@
   color: #4b5563;
 }
 
+.session-setup__description {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.session-setup__description:focus {
+  border-color: var(--color-primary);
+}
+
 .session-setup__start {
   display: flex;
   align-items: center;

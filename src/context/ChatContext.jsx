@@ -46,6 +46,18 @@ export function ChatProvider({ children }) {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chatMessages])
 
+  // Urgent task reminder on login
+  useEffect(() => {
+    if (!googleTasks.length) return
+    if (sessionStorage.getItem('nova_urgent_reminded')) return
+    const urgentTasks = googleTasks.filter(t => t.status !== 'completed' && parseTaskNotes(t.notes).priority === 'urgent')
+    if (urgentTasks.length > 0) {
+      sessionStorage.setItem('nova_urgent_reminded', '1')
+      const taskList = urgentTasks.map(t => t.title).join(', ')
+      setChatMessages(prev => [...prev, { role: 'assistant', content: `You have ${urgentTasks.length} urgent task${urgentTasks.length > 1 ? 's' : ''}: ${taskList}. Don't forget to address ${urgentTasks.length > 1 ? 'them' : 'it'}!` }])
+    }
+  }, [googleTasks])
+
   const getDateMappingContext = () => {
     const today = new Date()
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -110,7 +122,7 @@ Delete: {"action":"delete_recurring_event","eventTitle":"...","date":"YYYY-MM-DD
 Ask scope: {"action":"ask_recurring_scope","eventTitle":"...","date":"YYYY-MM-DD","operation":"edit|delete","updates":{...},"response":"...","expectsResponse":true}
 
 === TASKS ===
-Add: {"action":"add_task","title":"...","type":"general|due","dueDate":"YYYY-MM-DD or null","description":"...","response":"..."}
+Add: {"action":"add_task","title":"...","type":"general|due","dueDate":"YYYY-MM-DD or null","priority":"urgent|high|medium|low or null","description":"...","response":"..."}
 Edit: {"action":"edit_task","taskTitle":"...","updates":{"title":"...","dueDate":"...","description":"...","type":"general|due"},"response":"..."}
 Complete: {"action":"complete_task","taskTitle":"...","response":"..."}
 Uncomplete: {"action":"uncomplete_task","taskTitle":"...","response":"..."}
@@ -485,7 +497,7 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
 
       if (parsed.action === 'add_task') {
         const taskType = parsed.type || 'due'
-        const r = await addGoogleTask(parsed.title, parsed.dueDate, taskType, parsed.description || '')
+        const r = await addGoogleTask(parsed.title, parsed.dueDate, taskType, parsed.description || '', parsed.priority || null)
         if (r.success) {
           if (taskType === 'general') return { success: true, message: parsed.response || `Added general task "${parsed.title}".`, expectsResponse: false }
           const dueStr = parsed.dueDate ? ` due ${parseLocalDate(parsed.dueDate).toLocaleDateString()}` : ''

@@ -7,7 +7,7 @@ import './SessionSetup.css'
 
 export default function SessionSetup() {
   const {
-    activeSession, updateTimerConfig, saveDefaults,
+    activeSession, updateTimerConfig, saveDefaults, updateDescription,
     addSessionTask, removeSessionTask, startSession, cancelSession,
   } = useWorkSession()
   const { googleTasks } = useTasks()
@@ -129,6 +129,18 @@ export default function SessionSetup() {
         <button className="session-setup__save-defaults" onClick={handleSaveDefaults}>
           Save as Defaults
         </button>
+      </section>
+
+      {/* Description */}
+      <section className="session-setup__section">
+        <h3 className="session-setup__section-title">Description</h3>
+        <textarea
+          className="session-setup__description"
+          placeholder="What are you working on? (optional)"
+          value={activeSession.description || ''}
+          onChange={e => updateDescription(e.target.value)}
+          rows={2}
+        />
       </section>
 
       {/* Tasks */}

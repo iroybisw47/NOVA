@@ -202,6 +202,50 @@
   color: var(--color-text);
 }
 
+.session-active__add-task-row {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.session-active__task-input {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.session-active__task-input:focus {
+  border-color: var(--color-primary);
+}
+
+.session-active__add-task-btn {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-active__add-task-btn:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.session-active__add-task-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .session-active__tasks-list {
   display: flex;
   flex-direction: column;

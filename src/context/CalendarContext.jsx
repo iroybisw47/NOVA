@@ -167,10 +167,16 @@ export function CalendarProvider({ children }) {
       const conflictCheck = await checkForConflicts(data.date, data.startTime, dur)
       if (conflictCheck.hasConflict) return { success: false, hasConflict: true, conflicts: conflictCheck.conflicts, pendingEvent: data }
     }
+    const [startH, startM] = data.startTime.split(':').map(Number)
+    const startDate = parseLocalDate(data.date)
+    startDate.setHours(startH, startM, 0, 0)
+    const endDate = new Date(startDate.getTime() + dur * 60000)
+    const endDateStr = getDateString(endDate)
+    const endTimeStr = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`
     const body = {
       summary: data.title,
       start: { dateTime: `${data.date}T${data.startTime}:00`, timeZone: tz },
-      end: { dateTime: `${data.date}T${addMinutes(data.startTime, dur)}:00`, timeZone: tz }
+      end: { dateTime: `${endDateStr}T${endTimeStr}:00`, timeZone: tz }
     }
     if (data.location) body.location = data.location
     if (data.description) body.description = data.description

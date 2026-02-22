@@ -27,6 +27,11 @@ export default function SessionTaskItem({ task, mode, onRemove, onToggle }) {
             )}
           </button>
           <span className={`session-task__title ${isCompleted ? 'session-task__title--done' : ''}`}>{task.title}</span>
+          {onRemove && (
+            <button className="session-task__remove" onClick={() => onRemove(task.id)} title="Remove">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
         </>
       )}
 

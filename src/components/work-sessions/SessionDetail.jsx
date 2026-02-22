@@ -36,6 +36,10 @@ export default function SessionDetail({ sessionId, onBack }) {
         </span>
       </div>
 
+      {session.description && (
+        <p className="session-detail__description">{session.description}</p>
+      )}
+
       <div className="session-detail__stats">
         <div className="session-detail__stat">
           <span className="session-detail__stat-value">{formatMsLong(session.totalWorkMs)}</span>

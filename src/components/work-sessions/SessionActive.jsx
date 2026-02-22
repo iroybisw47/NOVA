@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useWorkSession, formatMs, formatMsLong } from '../../context/WorkSessionContext'
 import SessionTaskItem from './SessionTaskItem'
 import './SessionActive.css'
@@ -5,8 +6,10 @@ import './SessionActive.css'
 export default function SessionActive() {
   const {
     activeSession, pauseSession, resumeSession, skipBreak, endSession,
-    toggleSessionTaskStatus,
+    toggleSessionTaskStatus, addSessionTask, removeSessionTask,
   } = useWorkSession()
+
+  const [newTaskTitle, setNewTaskTitle] = useState('')
 
   if (!activeSession) return null
   const { status, timerConfig, elapsedWorkMs, breakElapsedMs, breaksTaken, currentIntervalElapsedMs, tasks } = activeSession
@@ -34,6 +37,13 @@ export default function SessionActive() {
 
   const isPaused = status === 'paused'
   const isBreak = status === 'break'
+
+  const handleAddTask = () => {
+    const title = newTaskTitle.trim()
+    if (!title) return
+    addSessionTask(title)
+    setNewTaskTitle('')
+  }
 
   return (
     <div className="session-active">
@@ -125,21 +135,33 @@ export default function SessionActive() {
       </div>
 
       {/* Task checklist */}
-      {tasks.length > 0 && (
-        <div className="session-active__tasks">
-          <h3 className="session-active__tasks-title">Tasks</h3>
-          <div className="session-active__tasks-list">
-            {tasks.map(task => (
-              <SessionTaskItem
-                key={task.id}
-                task={task}
-                mode="active"
-                onToggle={toggleSessionTaskStatus}
-              />
-            ))}
-          </div>
+      <div className="session-active__tasks">
+        <h3 className="session-active__tasks-title">Tasks</h3>
+        <div className="session-active__add-task-row">
+          <input
+            type="text"
+            className="session-active__task-input"
+            placeholder="Add a task..."
+            value={newTaskTitle}
+            onChange={e => setNewTaskTitle(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleAddTask()}
+          />
+          <button className="session-active__add-task-btn" onClick={handleAddTask} disabled={!newTaskTitle.trim()}>
+            +
+          </button>
         </div>
-      )}
+        <div className="session-active__tasks-list">
+          {tasks.map(task => (
+            <SessionTaskItem
+              key={task.id}
+              task={task}
+              mode="active"
+              onToggle={toggleSessionTaskStatus}
+              onRemove={removeSessionTask}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
