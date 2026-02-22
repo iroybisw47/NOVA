@@ -19,7 +19,7 @@ const isNegativeResponse = (text) => {
 }
 
 export function ChatProvider({ children }) {
-  const { accessToken } = useAuth()
+  const { accessToken, userId } = useAuth()
   const {
     calendarList, allEvents, fetchEventsFromAllCalendars, fetchEventsForDate,
     createEvent, deleteEventById, createRecurringEvent, deleteRecurringEvent,
@@ -46,17 +46,18 @@ export function ChatProvider({ children }) {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chatMessages])
 
-  // Urgent task reminder on login
+  // Urgent task reminder on login (per-account, once per session)
   useEffect(() => {
-    if (!googleTasks.length) return
-    if (sessionStorage.getItem('nova_urgent_reminded')) return
+    if (!googleTasks.length || !userId) return
+    const key = `nova_urgent_reminded_${userId}`
+    if (sessionStorage.getItem(key)) return
     const urgentTasks = googleTasks.filter(t => t.status !== 'completed' && parseTaskNotes(t.notes).priority === 'urgent')
     if (urgentTasks.length > 0) {
-      sessionStorage.setItem('nova_urgent_reminded', '1')
+      sessionStorage.setItem(key, '1')
       const taskList = urgentTasks.map(t => t.title).join(', ')
       setChatMessages(prev => [...prev, { role: 'assistant', content: `You have ${urgentTasks.length} urgent task${urgentTasks.length > 1 ? 's' : ''}: ${taskList}. Don't forget to address ${urgentTasks.length > 1 ? 'them' : 'it'}!` }])
     }
-  }, [googleTasks])
+  }, [googleTasks, userId])
 
   const getDateMappingContext = () => {
     const today = new Date()
