@@ -150,6 +150,13 @@
   box-shadow: 0 0 0 2px var(--glass-bg-heavy);
 }
 
+.day-detail__readonly-badge {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin-top: var(--space-sm);
+}
+
 .day-detail__event--deleting {
   opacity: 0.5;
   pointer-events: none;

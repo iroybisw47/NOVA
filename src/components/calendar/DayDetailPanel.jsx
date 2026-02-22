@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useCalendar, eventIsOnDate, isHolidayEvent, isCanvasAllDayEvent, getEventColor, isRecurringEvent, GOOGLE_COLOR_MAP } from '../../context/CalendarContext'
+import { useCalendar, eventIsOnDate, isHolidayEvent, isCanvasEvent, isCanvasAllDayEvent, getEventColor, isRecurringEvent, GOOGLE_COLOR_MAP } from '../../context/CalendarContext'
 import './DayDetailPanel.css'
 
 export default function DayDetailPanel() {
@@ -105,10 +105,11 @@ export default function DayDetailPanel() {
 
               const isEditing = (field) => editingEvent?.id === event.id && editingEvent?.field === field
               const isDeleting = deletingIds.has(event.id)
+              const isReadOnly = isCanvasEvent(event) || isHolidayEvent(event)
 
               return (
                 <div key={i} className={`day-detail__event ${isDeleting ? 'day-detail__event--deleting' : ''}`} style={{ borderLeftColor: color.border, backgroundColor: color.bg }}>
-                  {isEditing('summary') ? (
+                  {!isReadOnly && isEditing('summary') ? (
                     <input
                       className="day-detail__edit-input"
                       value={editValue}
@@ -118,13 +119,13 @@ export default function DayDetailPanel() {
                       autoFocus
                     />
                   ) : (
-                    <div className="day-detail__event-name day-detail__editable" style={color.text ? { color: color.text } : undefined} onClick={() => startEdit('summary', event.summary)}>{event.summary}</div>
+                    <div className={`day-detail__event-name ${!isReadOnly ? 'day-detail__editable' : ''}`} style={color.text ? { color: color.text } : undefined} onClick={() => !isReadOnly && startEdit('summary', event.summary)}>{event.summary}</div>
                   )}
                   <div className="day-detail__event-meta" style={color.text ? { color: color.text } : undefined}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
                     </svg>
-                    {isEditing('time') ? (
+                    {!isReadOnly && isEditing('time') ? (
                       <input
                         className="day-detail__edit-input day-detail__edit-input--small"
                         value={editValue}
@@ -135,15 +136,15 @@ export default function DayDetailPanel() {
                         autoFocus
                       />
                     ) : (
-                      <span className={isAllDay ? '' : 'day-detail__editable'} onClick={() => !isAllDay && startEdit('time', startTime ? startTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }) : '')}>{timeStr}</span>
+                      <span className={!isReadOnly && !isAllDay ? 'day-detail__editable' : ''} onClick={() => !isReadOnly && !isAllDay && startEdit('time', startTime ? startTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }) : '')}>{timeStr}</span>
                     )}
                   </div>
-                  {(event.location || isEditing('location')) && (
+                  {event.location && (
                     <div className="day-detail__event-meta" style={color.text ? { color: color.text } : undefined}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
                       </svg>
-                      {isEditing('location') ? (
+                      {!isReadOnly && isEditing('location') ? (
                         <input
                           className="day-detail__edit-input day-detail__edit-input--small"
                           value={editValue}
@@ -153,7 +154,7 @@ export default function DayDetailPanel() {
                           autoFocus
                         />
                       ) : (
-                        <span className="day-detail__editable" onClick={() => startEdit('location', event.location)}>{event.location}</span>
+                        <span className={!isReadOnly ? 'day-detail__editable' : ''} onClick={() => !isReadOnly && startEdit('location', event.location)}>{event.location}</span>
                       )}
                     </div>
                   )}
@@ -162,26 +163,35 @@ export default function DayDetailPanel() {
                       {event.description.substring(0, 100)}{event.description.length > 100 ? '...' : ''}
                     </div>
                   )}
-                  <div className="day-detail__color-picker">
-                    {Object.entries(GOOGLE_COLOR_MAP).map(([id, c]) => (
-                      <button
-                        key={id}
-                        className={`day-detail__color-swatch ${String(event.colorId) === id ? 'day-detail__color-swatch--active' : ''}`}
-                        style={{ backgroundColor: c.bg }}
-                        title={c.name}
-                        onClick={() => handleColorChange(id)}
-                      />
-                    ))}
-                  </div>
-                  <div className="day-detail__event-actions">
-                    <button
-                      onClick={handleDelete}
-                      className="day-detail__delete-btn"
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
+                  {isReadOnly && (
+                    <div className="day-detail__readonly-badge">
+                      {isCanvasEvent(event) ? 'Canvas' : 'Holiday'} — read only
+                    </div>
+                  )}
+                  {!isReadOnly && (
+                    <>
+                      <div className="day-detail__color-picker">
+                        {Object.entries(GOOGLE_COLOR_MAP).map(([id, c]) => (
+                          <button
+                            key={id}
+                            className={`day-detail__color-swatch ${String(event.colorId) === id ? 'day-detail__color-swatch--active' : ''}`}
+                            style={{ backgroundColor: c.bg }}
+                            title={c.name}
+                            onClick={() => handleColorChange(id)}
+                          />
+                        ))}
+                      </div>
+                      <div className="day-detail__event-actions">
+                        <button
+                          onClick={handleDelete}
+                          className="day-detail__delete-btn"
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )
             })

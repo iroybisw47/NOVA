@@ -12,10 +12,10 @@ export default function DashboardView() {
   const todayEvents = allEvents.filter(e => eventIsOnDate(e, new Date()) && !isHolidayEvent(e) && !isCanvasAllDayEvent(e))
   const pendingTasks = googleTasks.filter(t => t.status !== 'completed')
 
-  // Tasks due today (actual due date tasks) get orange dot
-  // General tasks (no due date / general type) get green dot
+  // Urgent tasks get purple dot, due today get orange dot, general get green dot
   const todayTasks = pendingTasks.filter(t => {
-    const { type } = parseTaskNotes(t.notes)
+    const { type, priority } = parseTaskNotes(t.notes)
+    if (priority === 'urgent') return true
     if (type === 'general') return true
     return taskIsOnDate(t, new Date())
   })
@@ -67,12 +67,14 @@ export default function DashboardView() {
             ) : (
               <div className="dashboard-view__tasks-list">
                 {todayTasks.length > 0 ? todayTasks.map(task => {
-                  const { type } = parseTaskNotes(task.notes)
+                  const { type, priority } = parseTaskNotes(task.notes)
+                  const isUrgent = priority === 'urgent'
                   const isGeneral = type === 'general'
+                  const dotClass = isUrgent ? 'dashboard-view__task-dot--urgent' : isGeneral ? 'dashboard-view__task-dot--general' : 'dashboard-view__task-dot--due'
 
                   return (
                     <div key={task.id} className="dashboard-view__task-item">
-                      <span className={`dashboard-view__task-dot ${isGeneral ? 'dashboard-view__task-dot--general' : 'dashboard-view__task-dot--due'}`} />
+                      <span className={`dashboard-view__task-dot ${dotClass}`} />
                       <span className="dashboard-view__task-name">{task.title}</span>
                     </div>
                   )
@@ -80,6 +82,9 @@ export default function DashboardView() {
                   <p className="dashboard-view__empty">No tasks for today</p>
                 )}
                 <div className="dashboard-view__task-legend">
+                  <span className="dashboard-view__legend-item">
+                    <span className="dashboard-view__task-dot dashboard-view__task-dot--urgent" /> Urgent
+                  </span>
                   <span className="dashboard-view__legend-item">
                     <span className="dashboard-view__task-dot dashboard-view__task-dot--due" /> Due today
                   </span>

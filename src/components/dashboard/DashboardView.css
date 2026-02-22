@@ -144,6 +144,10 @@
   flex-shrink: 0;
 }
 
+.dashboard-view__task-dot--urgent {
+  background: #9333ea;
+}
+
 .dashboard-view__task-dot--due {
   background: #f59e0b;
 }
