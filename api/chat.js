@@ -1,6 +1,30 @@
+// Simple in-memory rate limiter (per serverless instance)
+const rateMap = new Map()
+const RATE_LIMIT = 20      // max requests per window
+const WINDOW_MS = 60 * 1000 // 1 minute window
+
+function isRateLimited(ip) {
+  const now = Date.now()
+  const entry = rateMap.get(ip)
+
+  if (!entry || now - entry.start > WINDOW_MS) {
+    rateMap.set(ip, { start: now, count: 1 })
+    return false
+  }
+
+  entry.count++
+  if (entry.count > RATE_LIMIT) return true
+  return false
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: { message: 'Method not allowed' } })
+  }
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown'
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: { message: 'Too many requests. Please wait a minute.' } })
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY
