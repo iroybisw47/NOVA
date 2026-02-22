@@ -41,7 +41,8 @@ export default function TaskItem({ task }) {
       <input
         type="checkbox"
         checked={isCompleted}
-        onChange={() => isCompleted ? uncompleteTask(task.id) : completeTask(task.id)}
+        onChange={(e) => { e.stopPropagation(); isCompleted ? uncompleteTask(task.id) : completeTask(task.id) }}
+        onClick={(e) => e.stopPropagation()}
         className="task-item__checkbox"
       />
       <div className="task-item__content">

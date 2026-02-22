@@ -192,7 +192,12 @@ export function CalendarProvider({ children }) {
   const deleteEventById = async (eventId, calId = null) => {
     try {
       const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId || primaryCalendarId)}/events/${eventId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } })
-      if (r.ok || r.status === 204) { await refreshCurrentView(); return { success: true } }
+      if (r.ok || r.status === 204) {
+        // Remove from allEvents immediately so DayDetailPanel re-renders
+        setAllEvents(prev => prev.filter(e => e.id !== eventId))
+        await refreshCurrentView()
+        return { success: true }
+      }
       return { success: false }
     } catch (e) { return { success: false } }
   }

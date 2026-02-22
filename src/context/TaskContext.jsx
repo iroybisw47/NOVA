@@ -121,8 +121,9 @@ export function TaskProvider({ children }) {
       if (updates.dueDate !== undefined) task.due = updates.dueDate ? toTaskDueDate(updates.dueDate) : null
       const currentNotes = parseTaskNotes(task.notes)
       const newType = updates.type !== undefined ? updates.type : currentNotes.type
+      const newPriority = updates.priority !== undefined ? updates.priority : currentNotes.priority
       const newDescription = updates.description !== undefined ? updates.description : currentNotes.description
-      task.notes = buildTaskNotes(newType, null, null, newDescription)
+      task.notes = buildTaskNotes(newType, newPriority, null, newDescription)
       const r = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`, {
         method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(task) })
       if (r.ok) { await refreshTasks(); return { success: true } }
@@ -132,29 +133,35 @@ export function TaskProvider({ children }) {
 
   const completeTask = async (taskId) => {
     if (!taskListId || !accessToken) return { success: false }
+    // Optimistic update
+    setGoogleTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'completed', completed: new Date().toISOString() } : t))
     try {
       const getR = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`, { headers: { Authorization: `Bearer ${accessToken}` } })
-      if (!getR.ok) return { success: false }
+      if (!getR.ok) { await refreshTasks(); return { success: false } }
       const task = await getR.json()
       task.status = 'completed'
       const r = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(task) })
       if (r.ok) { await refreshTasks(); return { success: true } }
+      await refreshTasks()
       return { success: false }
-    } catch (e) { return { success: false } }
+    } catch (e) { await refreshTasks(); return { success: false } }
   }
 
   const uncompleteTask = async (taskId) => {
     if (!taskListId || !accessToken) return { success: false }
+    // Optimistic update
+    setGoogleTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: 'needsAction', completed: null } : t))
     try {
       const getR = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`, { headers: { Authorization: `Bearer ${accessToken}` } })
-      if (!getR.ok) return { success: false }
+      if (!getR.ok) { await refreshTasks(); return { success: false } }
       const task = await getR.json()
       task.status = 'needsAction'
       task.completed = null
       const r = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks/${taskId}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(task) })
       if (r.ok) { await refreshTasks(); return { success: true } }
+      await refreshTasks()
       return { success: false }
-    } catch (e) { return { success: false } }
+    } catch (e) { await refreshTasks(); return { success: false } }
   }
 
   const deleteGoogleTask = async (taskId) => {

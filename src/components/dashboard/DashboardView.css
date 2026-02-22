@@ -4,65 +4,175 @@
   animation: fadeIn 0.3s ease;
 }
 
-.dashboard-view__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-xl);
-  margin-bottom: var(--space-2xl);
-}
-
 .dashboard-view__grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 340px;
   gap: var(--space-xl);
+  min-height: 500px;
 }
 
 .dashboard-view__sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.dashboard-view__due-today {
   background: var(--glass-bg-heavy);
   -webkit-backdrop-filter: var(--glass-blur-heavy);
   backdrop-filter: var(--glass-blur-heavy);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-lg);
   box-shadow: var(--shadow-lg), var(--glass-inset);
+  overflow: hidden;
 }
 
-.dashboard-view__due-today-title {
-  margin: 0 0 var(--space-md) 0;
-  font-size: 1rem;
+.dashboard-view__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.dashboard-view__tab {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
 }
 
-.dashboard-view__due-today-list {
+.dashboard-view__tab:hover {
+  color: var(--color-text);
+  background: var(--glass-bg-light);
+}
+
+.dashboard-view__tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.dashboard-view__tab-content {
+  flex: 1;
+  padding: var(--space-md);
+  overflow-y: auto;
+}
+
+/* Events tab */
+.dashboard-view__events-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
 }
 
-.dashboard-view__due-today-item {
+.dashboard-view__event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-primary);
+  background: var(--glass-bg-light);
+  transition: all var(--transition-fast);
+}
+
+.dashboard-view__event-item:hover {
+  transform: translateX(2px);
+}
+
+.dashboard-view__event-name {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.dashboard-view__event-time {
+  margin: 2px 0 0 0;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.dashboard-view__event-location {
+  margin: 2px 0 0 0;
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+}
+
+.dashboard-view__event-delete {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dashboard-view__event-delete:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+/* Tasks tab */
+.dashboard-view__tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.dashboard-view__task-item {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 0.875rem;
-  color: var(--color-text);
-  padding: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-sm);
   background: var(--glass-bg-light);
 }
 
-.dashboard-view__due-today-dot {
+.dashboard-view__task-name {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.dashboard-view__task-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--color-warning);
   flex-shrink: 0;
+}
+
+.dashboard-view__task-dot--due {
+  background: #f59e0b;
+}
+
+.dashboard-view__task-dot--general {
+  background: #22c55e;
+}
+
+.dashboard-view__task-legend {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-md) var(--space-sm);
+  margin-top: var(--space-sm);
+  border-top: 1px solid var(--glass-border);
+}
+
+.dashboard-view__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+}
+
+.dashboard-view__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--space-xl);
+  font-size: 0.875rem;
 }
 
 @media (max-width: 1024px) {
