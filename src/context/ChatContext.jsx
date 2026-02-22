@@ -32,7 +32,7 @@ export function ChatProvider({ children }) {
     deleteGoogleTask, bulkDeleteTasks, deleteDuplicateTasks,
     findTaskByFuzzyMatch, queryTasks
   } = useTasks()
-  const { getApiKey, behavioralRules, addBehavioralRule } = useSettings()
+  const { behavioralRules, addBehavioralRule } = useSettings()
 
   const [chatMessages, setChatMessages] = useState([])
   const [chatInput, setChatInput] = useState('')
@@ -152,9 +152,6 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
   }
 
   const processCommand = async (inputText) => {
-    const currentApiKey = getApiKey()
-    if (!currentApiKey) return { success: false, message: 'Please add your Anthropic API key in Settings.', expectsResponse: false }
-
     // Handle pending task type response
     if (pendingAction?.type === 'task_type') {
       const lower = inputText.toLowerCase().trim()
@@ -707,10 +704,10 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
     const updatedHistory = [...conversationHistory, { role: 'user', content: newUserMessage }]
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': currentApiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: buildSystemPrompt(), messages: updatedHistory })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ system: buildSystemPrompt(), messages: updatedHistory })
       })
       const data = await response.json()
       if (data.error || !data.content?.[0]) { console.error('API Error:', JSON.stringify(data)); return { success: false, message: data.error?.message || 'API error. Please try again.', expectsResponse: false } }

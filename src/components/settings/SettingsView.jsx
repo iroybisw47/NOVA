@@ -1,10 +1,9 @@
 import { useSettings } from '../../context/SettingsContext'
-import AccountSettings from './AccountSettings'
 import IntegrationSettings from './IntegrationSettings'
 import AIRulesSettings from './AIRulesSettings'
 import './SettingsView.css'
 
-const tabs = ['account', 'integrations', 'ai-rules']
+const tabs = ['integrations', 'ai-rules']
 
 export default function SettingsView() {
   const { settingsTab, setSettingsTab } = useSettings()
@@ -24,7 +23,6 @@ export default function SettingsView() {
         ))}
       </div>
 
-      {settingsTab === 'account' && <AccountSettings />}
       {settingsTab === 'integrations' && <IntegrationSettings />}
       {settingsTab === 'ai-rules' && <AIRulesSettings />}
     </div>
