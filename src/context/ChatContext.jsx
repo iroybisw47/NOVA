@@ -101,7 +101,7 @@ RULES:
 3. If user says "it", "that", "the meeting" etc., refer to the "Last mentioned" item above.
 4. For MULTIPLE actions in one message, return: {"actions":[...array of action objects...],"response":"summary"}
 5. Only use out_of_scope for truly unrelated requests like trivia, jokes, or essays.
-6. Times 1-5 without AM/PM = assume PM. Times 6-11 without AM/PM = ask.
+6. Times 1-5 without AM/PM = assume PM. Times 6-11 without AM/PM = ALWAYS use ask_ampm to clarify. NEVER guess AM or PM for times 6-11.
 7. "push back 1 hour" / "move it later by 30 min" = use reschedule_event with timeShift.
 8. Set expectsResponse:true when asking the user a question.
 
@@ -562,6 +562,17 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
 
       if (parsed.action === 'create_event') {
         const eventData = { title: parsed.title, date: parsed.date, startTime: parsed.startTime, duration: parsed.duration || 60, location: parsed.location || null, description: parsed.description || null }
+        // Safety net: if AI picked a time in 6-11 range without user specifying AM/PM, ask
+        if (parsed.startTime && !parsed._ampmConfirmed) {
+          const hour = parseInt(parsed.startTime.split(':')[0])
+          const userText = inputText.toLowerCase()
+          const hasAmPm = /\b(am|pm|a\.m|p\.m)\b/i.test(userText)
+          if (!hasAmPm && ((hour >= 18 && hour <= 23) || (hour >= 6 && hour <= 11))) {
+            const displayHour = hour > 12 ? hour - 12 : hour
+            setPendingAction({ type: 'ampm', time: `${displayHour}:${parsed.startTime.split(':')[1]}`, details: eventData })
+            return { success: true, message: `Is that ${displayHour}${parsed.startTime.split(':')[1] !== '00' ? ':' + parsed.startTime.split(':')[1] : ''} AM or PM?`, expectsResponse: true }
+          }
+        }
         const r = await createEvent(eventData)
         if (r.hasConflict) {
           const conflictNames = r.conflicts.map(c => { const start = new Date(c.start.dateTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); const end = new Date(c.end.dateTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); return `${c.summary} (${start}-${end})` }).join(', ')
