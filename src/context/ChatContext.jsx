@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext'
 import { useCalendar, formatDate, formatTime12h, formatDuration, getDateString, parseLocalDate, parseTaskDueDate, isSameDay, isRecurringEvent, getEventDate, isHolidayEvent, isCanvasEvent, eventIsOnDate } from './CalendarContext'
 import { useTasks, parseTaskNotes, getTaskUrgencyColor, buildTaskNotes, taskIsOnDate } from './TaskContext'
 import { useSettings } from './SettingsContext'
+import { NOVA_TOOLS } from './novaTools'
 
 const ChatContext = createContext()
 
@@ -90,78 +91,19 @@ export function ChatProvider({ children }) {
 
     const lastCtx = lastMentioned ? `\nLast mentioned: ${lastMentioned.type} "${lastMentioned.name}"${lastMentioned.date ? ` on ${lastMentioned.date}` : ''}` : ''
 
-    return `You are Nova, a personal secretary. You manage calendar events, tasks, and behavioral rules. Be concise and friendly.
+    return `You are Nova, a personal secretary. You manage calendar events, tasks, and behavioral rules. Be concise and friendly. Use the provided tools to take actions.
 ${dateMapping}
 DATES: Use EXACT dates from the table above. Never calculate dates yourself.
 Today: ${formatDate(today)} (${todayStr}). Time: ${today.toLocaleTimeString()}.${holidayNote}${taskList}${rulesSection}${lastCtx}
 
 RULES:
-1. ALWAYS respond with valid JSON only (no markdown, no backticks, no explanation text).
-2. Event names are user-created and can be ANYTHING ("worm meeting", "pizza night", etc.). If the user mentions moving, scheduling, deleting, or editing something — it IS a calendar/task action.
+1. Use the provided tools to take actions. For multiple actions in one message, call multiple tools.
+2. Event names are user-created and can be ANYTHING ("worm meeting", "pizza night", etc.). If the user mentions moving, scheduling, deleting, or editing something — it IS a calendar/task action. Use the appropriate tool.
 3. If user says "it", "that", "the meeting" etc., refer to the "Last mentioned" item above.
-4. For MULTIPLE actions in one message, return: {"actions":[...array of action objects...],"response":"summary"}
-5. Only use out_of_scope for truly unrelated requests like trivia, jokes, or essays.
-6. Times 1-5 without AM/PM = assume PM. Times 6-11 without AM/PM = ALWAYS use ask_ampm to clarify. NEVER guess AM or PM for times 6-11.
-7. "push back 1 hour" / "move it later by 30 min" = use reschedule_event with timeShift.
-8. Set expectsResponse:true when asking the user a question.
-
-ACTIONS (respond with ONE of these, or an array via "actions"):
-
-=== EVENTS ===
-Create: {"action":"create_event","title":"...","date":"YYYY-MM-DD","startTime":"HH:MM","duration":60,"location":"...","description":"...","response":"..."}
-Delete: {"action":"delete_event","eventTitle":"...","date":"YYYY-MM-DD","response":"..."}
-Reschedule: {"action":"reschedule_event","eventTitle":"...","date":"YYYY-MM-DD","newDate":"YYYY-MM-DD or null","newStartTime":"HH:MM or null","newDuration":null,"timeShift":null,"response":"..."}
-  - "date" = current date (to find it). "newDate" = target date. newStartTime = null keeps existing time.
-  - timeShift: minutes to shift (e.g. +60 = 1hr later, -30 = 30min earlier). Use for "push back", "move later/earlier".
-Update: {"action":"update_event","eventTitle":"...","date":"YYYY-MM-DD","updates":{"title":"...","location":"...","description":"..."},"response":"..."}
-Clear day: {"action":"clear_day","date":"YYYY-MM-DD","confirm":false,"response":"...","expectsResponse":true}
-
-=== RECURRING EVENTS ===
-Create: {"action":"create_recurring_event","title":"...","date":"YYYY-MM-DD","startTime":"HH:MM","duration":60,"recurrence":{"frequency":"daily|weekly|monthly","interval":1,"daysOfWeek":["MO","TU"],"until":"YYYY-MM-DD or null"},"response":"..."}
-Edit: {"action":"edit_recurring_event","eventTitle":"...","date":"YYYY-MM-DD","editScope":"single|all","updates":{...},"response":"..."}
-Delete: {"action":"delete_recurring_event","eventTitle":"...","date":"YYYY-MM-DD","deleteScope":"single|all","response":"..."}
-Ask scope: {"action":"ask_recurring_scope","eventTitle":"...","date":"YYYY-MM-DD","operation":"edit|delete","updates":{...},"response":"...","expectsResponse":true}
-
-=== TASKS ===
-Add: {"action":"add_task","title":"...","type":"general|due","dueDate":"YYYY-MM-DD or null","priority":"urgent|high|medium|low or null","description":"...","response":"..."}
-Edit: {"action":"edit_task","taskTitle":"...","updates":{"title":"...","dueDate":"...","description":"...","type":"general|due"},"response":"..."}
-Complete: {"action":"complete_task","taskTitle":"...","response":"..."}
-Uncomplete: {"action":"uncomplete_task","taskTitle":"...","response":"..."}
-Delete: {"action":"delete_task","taskTitle":"...","response":"..."}
-Bulk delete: {"action":"bulk_delete_tasks","filter":"completed|overdue|all","response":"..."}
-Delete dupes: {"action":"delete_duplicate_tasks","response":"..."}
-Query: {"action":"query_tasks","filter":"all|general|due|overdue|today|completed","response":"..."}
-Ask type: {"action":"ask_task_type","title":"...","description":"...","response":"...","expectsResponse":true}
-
-=== QUERIES ===
-Day schedule: {"action":"check_schedule","date":"YYYY-MM-DD","response":"..."}
-Week schedule: {"action":"check_week_schedule","date":"YYYY-MM-DD","response":"..."}
-Availability: {"action":"check_availability","date":"YYYY-MM-DD","time":"HH:MM","duration":60,"response":"..."}
-Free time: {"action":"find_free_time","date":"YYYY-MM-DD","duration":60,"response":"..."}
-
-=== ASK FOR INFO ===
-Missing info: {"action":"ask_missing_info","eventDetails":{"title":"...","date":null,"startTime":null,"duration":null},"missing":["date","time","duration"],"response":"...","expectsResponse":true}
-Ask time: {"action":"ask_time","eventDetails":{...},"response":"...","expectsResponse":true}
-Ask AM/PM: {"action":"ask_ampm","time":"9:00","eventDetails":{...},"response":"...","expectsResponse":true}
-Ask duration: {"action":"ask_duration","eventDetails":{...},"response":"...","expectsResponse":true}
-Ask event name: {"action":"ask_event_name","partialDetails":{...},"response":"...","expectsResponse":true}
-
-=== OTHER ===
-Add rule: {"action":"add_rule","rule":"...","response":"..."}
-Out of scope: {"action":"out_of_scope","response":"..."}
-
-EXAMPLES:
-User: "Move my dentist appointment to Friday and cancel yoga"
-→ {"actions":[{"action":"reschedule_event","eventTitle":"dentist appointment","newDate":"2026-02-20","newStartTime":null,"response":"Moved dentist to Friday."},{"action":"delete_event","eventTitle":"yoga","response":"Cancelled yoga."}],"response":"Done! Moved your dentist appointment to Friday and cancelled yoga."}
-
-User: "Push my meeting back an hour"
-→ {"action":"reschedule_event","eventTitle":"meeting","timeShift":60,"response":"Pushed your meeting back by 1 hour."}
-
-User: "Add buy groceries and finish report by Friday"
-→ {"actions":[{"action":"ask_task_type","title":"buy groceries","response":"","expectsResponse":true},{"action":"add_task","title":"finish report","type":"due","dueDate":"2026-02-20","response":""}],"response":"Added 'finish report' due Friday. Does 'buy groceries' have a due date, or is it a general task?"}
-
-User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
-→ {"action":"create_event","title":"Seattle worm meeting","date":"2026-02-21","startTime":"15:00","duration":120,"response":"Scheduled 'Seattle worm meeting' on Saturday at 3:00 PM for 2 hours."}`
+4. Times 1-5 without AM/PM = assume PM. Times 6-11 without AM/PM = ALWAYS use ask_ampm tool. NEVER guess AM or PM for times 6-11.
+5. "push back 1 hour" / "move it later by 30 min" = use reschedule_event with timeShift.
+6. For conversational replies (greetings, jokes, questions about yourself), just respond with text — no tool needed.
+7. Always include a helpful "response" message in every tool call.`
   }
 
   const processCommand = async (inputText) => {
@@ -731,34 +673,51 @@ User: "Schedule Seattle worm meeting Saturday at 3pm for 2 hours"
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system: buildSystemPrompt(), messages: updatedHistory })
+        body: JSON.stringify({ system: buildSystemPrompt(), messages: updatedHistory, tools: NOVA_TOOLS })
       })
       const data = await response.json()
-      if (data.error || !data.content?.[0]) { console.error('API Error:', JSON.stringify(data)); return { success: false, message: data.error?.message || 'API error. Please try again.', expectsResponse: false } }
+      if (data.error || !data.content?.length) { console.error('API Error:', JSON.stringify(data)); return { success: false, message: data.error?.message || 'API error. Please try again.', expectsResponse: false } }
 
-      let content = data.content[0].text.trim()
-      content = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+      // Extract tool_use blocks and text blocks from response
+      const toolUseBlocks = data.content.filter(b => b.type === 'tool_use')
+      const textBlocks = data.content.filter(b => b.type === 'text')
+      const textResponse = textBlocks.map(b => b.text).join(' ').trim()
 
-      let parsed
-      try { parsed = JSON.parse(content) } catch (parseErr) {
-        console.error('JSON parse error:', parseErr, 'Content:', content)
-        return { success: false, message: 'Nova had trouble understanding that. Please try again.', expectsResponse: false }
-      }
-      setConversationHistory([...updatedHistory, { role: 'assistant', content }].slice(-10))
+      // Store conversation history (serialize tool calls as assistant content)
+      const assistantContent = data.content.map(b => {
+        if (b.type === 'text') return { type: 'text', text: b.text }
+        if (b.type === 'tool_use') return { type: 'tool_use', id: b.id, name: b.name, input: b.input }
+        return b
+      })
+      setConversationHistory([...updatedHistory, { role: 'assistant', content: assistantContent }].slice(-10))
 
-      // Multi-action support
-      if (parsed.actions && Array.isArray(parsed.actions)) {
-        const results = []
-        for (const action of parsed.actions) {
-          const r = await executeAction(action)
-          results.push(r)
-        }
-        const allSuccess = results.every(r => r.success)
-        const hasExpects = results.some(r => r.expectsResponse)
-        return { success: allSuccess, message: parsed.response || results.map(r => r.message).join(' '), expectsResponse: hasExpects }
+      // No tool calls — pure conversational response
+      if (toolUseBlocks.length === 0) {
+        return { success: true, message: textResponse || 'I\'m not sure how to help with that.', expectsResponse: false }
       }
 
-      return await executeAction(parsed)
+      // Execute tool calls
+      const results = []
+      for (const block of toolUseBlocks) {
+        const parsed = { action: block.name, ...block.input }
+        const r = await executeAction(parsed)
+        results.push(r)
+      }
+
+      const allSuccess = results.every(r => r.success)
+      const hasExpects = results.some(r => r.expectsResponse)
+
+      // Build final message: prefer tool responses, fall back to text block
+      let finalMessage
+      if (toolUseBlocks.length === 1) {
+        finalMessage = results[0].message || textResponse
+      } else {
+        // Multi-tool: combine responses
+        const toolResponses = results.map(r => r.message).filter(Boolean).join(' ')
+        finalMessage = textResponse || toolResponses
+      }
+
+      return { success: allSuccess, message: finalMessage, expectsResponse: hasExpects }
     } catch (error) {
       console.error('Nova error:', error)
       return { success: false, message: 'Something went wrong. Please try again.', expectsResponse: false }
