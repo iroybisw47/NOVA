@@ -151,8 +151,12 @@ export function CalendarProvider({ children }) {
 
   const refreshCurrentView = async () => {
     if (!accessToken || !calendarList.length) return
-    const events = await fetchEventsForDate(accessToken, selectedDate, calendarList)
+    const [events, monthEvents] = await Promise.all([
+      fetchEventsForDate(accessToken, selectedDate, calendarList),
+      fetchEventsForMonth(accessToken, calendarViewDate, calendarList),
+    ])
     setCalendarEvents(events.filter(e => !isHolidayEvent(e) && !isCanvasAllDayEvent(e)))
+    setAllEvents(monthEvents)
   }
 
   const createEvent = async (data, skipConflictCheck = false) => {

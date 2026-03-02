@@ -123,6 +123,69 @@ export function formatMsLong(ms) {
   return `${m}m`
 }
 
+// --- Away-time reconciliation ---
+// Simulates timer progression for time spent away from the window
+
+function reconcileAwayTime(session, awayMs) {
+  if (!session || awayMs <= 0) return session
+  if (session.status !== 'running' && session.status !== 'break') return session
+
+  let remaining = awayMs
+  const state = { ...session }
+
+  while (remaining > 0) {
+    if (state.status === 'running') {
+      const { timerConfig } = state
+      const hasBreaks = timerConfig.breakIntervalMs > 0 && timerConfig.breakDurationMs > 0
+      const workLeft = timerConfig.totalDurationMs - state.elapsedWorkMs
+
+      if (hasBreaks) {
+        const untilBreak = timerConfig.breakIntervalMs - state.currentIntervalElapsedMs
+        const workToAdd = Math.min(remaining, workLeft, untilBreak)
+        state.elapsedWorkMs += workToAdd
+        state.currentIntervalElapsedMs += workToAdd
+        remaining -= workToAdd
+
+        if (state.elapsedWorkMs >= timerConfig.totalDurationMs) {
+          state.elapsedWorkMs = timerConfig.totalDurationMs
+          state.status = 'completing'
+          break
+        }
+        if (state.currentIntervalElapsedMs >= timerConfig.breakIntervalMs) {
+          state.status = 'break'
+          state.currentIntervalElapsedMs = 0
+          state.breakElapsedMs = 0
+          state.breaksTaken += 1
+        }
+      } else {
+        const workToAdd = Math.min(remaining, workLeft)
+        state.elapsedWorkMs += workToAdd
+        remaining -= workToAdd
+        if (state.elapsedWorkMs >= timerConfig.totalDurationMs) {
+          state.elapsedWorkMs = timerConfig.totalDurationMs
+          state.status = 'completing'
+          break
+        }
+      }
+    } else if (state.status === 'break') {
+      const breakLeft = state.timerConfig.breakDurationMs - state.breakElapsedMs
+      const breakToAdd = Math.min(remaining, breakLeft)
+      state.breakElapsedMs += breakToAdd
+      state.elapsedBreakMs += breakToAdd
+      remaining -= breakToAdd
+
+      if (state.breakElapsedMs >= state.timerConfig.breakDurationMs) {
+        state.status = 'running'
+        state.breakElapsedMs = 0
+      }
+    } else {
+      break
+    }
+  }
+
+  return state
+}
+
 // --- Provider ---
 
 export function WorkSessionProvider({ children }) {
@@ -145,6 +208,18 @@ export function WorkSessionProvider({ children }) {
         const saved = localStorage.getItem(`nova_session_defaults_${userId}`)
         if (saved) setSessionDefaults(JSON.parse(saved))
       } catch {}
+      // Restore active session and reconcile away time
+      try {
+        const savedActive = localStorage.getItem(`nova_active_session_${userId}`)
+        if (savedActive) {
+          const { session, savedAt } = JSON.parse(savedActive)
+          if (session && session.status !== 'idle') {
+            const awayMs = Date.now() - savedAt
+            const reconciled = reconcileAwayTime(session, awayMs)
+            setActiveSession(reconciled)
+          }
+        }
+      } catch {}
     }
   }, [userId])
 
@@ -157,6 +232,47 @@ export function WorkSessionProvider({ children }) {
   useEffect(() => {
     if (userId) localStorage.setItem(`nova_session_defaults_${userId}`, JSON.stringify(sessionDefaults))
   }, [sessionDefaults, userId])
+
+  // Persist active session (enables restore after tab close / navigation away)
+  // Only update savedAt on status changes to avoid resetting it every timer tick
+  const lastSavedStatusRef = useRef(null)
+
+  useEffect(() => {
+    if (!userId) return
+    if (activeSession) {
+      const statusChanged = lastSavedStatusRef.current !== activeSession.status
+      lastSavedStatusRef.current = activeSession.status
+
+      if (statusChanged) {
+        // Status changed — save with fresh timestamp
+        localStorage.setItem(`nova_active_session_${userId}`, JSON.stringify({ session: activeSession, savedAt: Date.now() }))
+      } else {
+        // Timer tick — save session state but preserve existing savedAt
+        try {
+          const existing = JSON.parse(localStorage.getItem(`nova_active_session_${userId}`))
+          const savedAt = existing?.savedAt || Date.now()
+          localStorage.setItem(`nova_active_session_${userId}`, JSON.stringify({ session: activeSession, savedAt }))
+        } catch {
+          localStorage.setItem(`nova_active_session_${userId}`, JSON.stringify({ session: activeSession, savedAt: Date.now() }))
+        }
+      }
+    } else {
+      localStorage.removeItem(`nova_active_session_${userId}`)
+      lastSavedStatusRef.current = null
+    }
+  }, [activeSession, userId])
+
+  // Save accurate timestamp on page unload so away-time calculation is precise
+  useEffect(() => {
+    if (!userId) return
+    const handleUnload = () => {
+      if (activeSession) {
+        localStorage.setItem(`nova_active_session_${userId}`, JSON.stringify({ session: activeSession, savedAt: Date.now() }))
+      }
+    }
+    window.addEventListener('beforeunload', handleUnload)
+    return () => window.removeEventListener('beforeunload', handleUnload)
+  }, [activeSession, userId])
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {

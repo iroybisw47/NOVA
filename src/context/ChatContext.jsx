@@ -521,7 +521,7 @@ RULES:
           setPendingAction({ type: 'confirm_conflict', eventData })
           return { success: true, message: `This conflicts with: ${conflictNames}. Do you want to schedule anyway?`, expectsResponse: true }
         }
-        if (r.success) { let response = parsed.response || `Scheduled "${parsed.title}" at ${formatTime12h(parsed.startTime)}`; if (parsed.location) response += ` at ${parsed.location}`; return { success: true, message: response + '.', expectsResponse: false } }
+        if (r.success) { let response = parsed.response || `Scheduled "${parsed.title}" at ${formatTime12h(parsed.startTime)}`; if (!parsed.response && parsed.location) response += ` at ${parsed.location}`; if (!response.endsWith('.')) response += '.'; return { success: true, message: response, expectsResponse: false } }
         return { success: false, message: 'Could not create event.', expectsResponse: false }
       }
 
@@ -683,17 +683,11 @@ RULES:
       const textBlocks = data.content.filter(b => b.type === 'text')
       const textResponse = textBlocks.map(b => b.text).join(' ').trim()
 
-      // Store conversation history (serialize tool calls as assistant content)
-      const assistantContent = data.content.map(b => {
-        if (b.type === 'text') return { type: 'text', text: b.text }
-        if (b.type === 'tool_use') return { type: 'tool_use', id: b.id, name: b.name, input: b.input }
-        return b
-      })
-      setConversationHistory([...updatedHistory, { role: 'assistant', content: assistantContent }].slice(-10))
-
       // No tool calls — pure conversational response
       if (toolUseBlocks.length === 0) {
-        return { success: true, message: textResponse || 'I\'m not sure how to help with that.', expectsResponse: false }
+        const msg = textResponse || 'I\'m not sure how to help with that.'
+        setConversationHistory([...updatedHistory, { role: 'assistant', content: msg }].slice(-10))
+        return { success: true, message: msg, expectsResponse: false }
       }
 
       // Execute tool calls
@@ -716,6 +710,10 @@ RULES:
         const toolResponses = results.map(r => r.message).filter(Boolean).join(' ')
         finalMessage = textResponse || toolResponses
       }
+
+      // Store only text in conversation history (tool_use blocks would break the API
+      // protocol on subsequent calls since Anthropic requires tool_result after tool_use)
+      setConversationHistory([...updatedHistory, { role: 'assistant', content: finalMessage }].slice(-10))
 
       return { success: allSuccess, message: finalMessage, expectsResponse: hasExpects }
     } catch (error) {
