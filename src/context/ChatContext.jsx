@@ -504,15 +504,15 @@ RULES:
 
       if (parsed.action === 'create_event') {
         const eventData = { title: parsed.title, date: parsed.date, startTime: parsed.startTime, duration: parsed.duration || 60, location: parsed.location || null, description: parsed.description || null }
-        // Safety net: if AI picked a time in 6-11 range without user specifying AM/PM, ask
+        // Safety net: if AI picked an ambiguous time (6-11) without user specifying AM/PM, ask
+        // Hours 12-23 are already unambiguous in 24h format so skip the check for those
         if (parsed.startTime && !parsed._ampmConfirmed) {
           const hour = parseInt(parsed.startTime.split(':')[0])
           const userText = inputText.toLowerCase()
           const hasAmPm = /\b(am|pm|a\.m|p\.m)\b/i.test(userText)
-          if (!hasAmPm && ((hour >= 18 && hour <= 23) || (hour >= 6 && hour <= 11))) {
-            const displayHour = hour > 12 ? hour - 12 : hour
-            setPendingAction({ type: 'ampm', time: `${displayHour}:${parsed.startTime.split(':')[1]}`, details: eventData })
-            return { success: true, message: `Is that ${displayHour}${parsed.startTime.split(':')[1] !== '00' ? ':' + parsed.startTime.split(':')[1] : ''} AM or PM?`, expectsResponse: true }
+          if (!hasAmPm && hour >= 6 && hour <= 11) {
+            setPendingAction({ type: 'ampm', time: `${hour}:${parsed.startTime.split(':')[1]}`, details: eventData })
+            return { success: true, message: `Is that ${hour}${parsed.startTime.split(':')[1] !== '00' ? ':' + parsed.startTime.split(':')[1] : ''} AM or PM?`, expectsResponse: true }
           }
         }
         const r = await createEvent(eventData)
