@@ -318,7 +318,7 @@ export function CalendarProvider({ children }) {
       }
       const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calId)}/events/${eventId}`, {
         method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(event) })
-      if (r.ok) { await refreshCurrentView(); if (calendarList.length) { const monthEvents = await fetchEventsForMonth(accessToken, calendarViewDate, calendarList); setAllEvents(monthEvents) } return { success: true, event: await r.json() } }
+      if (r.ok) { await refreshCurrentView(); return { success: true, event: await r.json() } }
       return { success: false }
     } catch (e) { return { success: false } }
   }
