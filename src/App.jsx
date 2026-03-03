@@ -52,7 +52,7 @@ class ErrorBoundary extends Component {
 function NovaApp() {
   const { accessToken, isSignedIn, isLoading, setLoading, needsInit, setNeedsInit } = useAuth()
   const { initialize: initCalendar, loadEvents } = useCalendar()
-  const { initialize: initTasks } = useTasks()
+  const { initialize: initTasks, convertCanvasEventsToTasks } = useTasks()
   const { getGreeting } = useVoice()
   const [currentTab, setCurrentTab] = useState('dashboard')
 
@@ -61,9 +61,12 @@ function NovaApp() {
     const init = async () => {
       try {
         const { calendars } = await initCalendar(accessToken)
-        await initTasks(accessToken)
+        const taskListId = await initTasks(accessToken)
         if (calendars && calendars.length) {
-          await loadEvents(accessToken, calendars, new Date())
+          const allEvents = await loadEvents(accessToken, calendars, new Date())
+          if (taskListId && allEvents) {
+            await convertCanvasEventsToTasks(accessToken, taskListId, allEvents)
+          }
         }
       } catch (e) {
         console.error('Initialization error:', e)
